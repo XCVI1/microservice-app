@@ -1,0 +1,5 @@
+deploy_path: "{{ lookup('env', 'HOME') }}/microservice-local"
+
+project_name: microservice
+docker_compose_file: docker-compose.yml
+env_file: .env
