@@ -1,0 +1,6 @@
+- name: Setup environment for microservice app
+  hosts: local
+  become: true
+
+  roles:
+    - setup

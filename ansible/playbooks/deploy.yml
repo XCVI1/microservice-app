@@ -1,0 +1,6 @@
+- name: Deploy microservice stack
+  hosts: local
+  become: true
+
+  roles:
+    - deploy
