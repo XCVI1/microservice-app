@@ -30,6 +30,8 @@ The system follows a microservices architecture:
 ---
 
 ## Project Structure
+
+```bash
 microservice-app/
 │
 ├── auth-service/
@@ -54,7 +56,7 @@ microservice-app/
 │
 ├── docker-compose.yml
 └── .env
-
+```
 ---
 
 ## Containerization
