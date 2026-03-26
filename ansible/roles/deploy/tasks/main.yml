@@ -1,0 +1,4 @@
+- import_tasks: copy_compose.yml
+- import_tasks: copy_env.yml
+- import_tasks: copy_nginx.yml
+- import_tasks: run_compose.yml

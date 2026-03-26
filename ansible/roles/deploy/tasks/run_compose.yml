@@ -1,0 +1,11 @@
+- name: Pull latest images
+  command: docker compose pull
+  args:
+    chdir: "{{ lookup('env', 'HOME') }}/microservice-local"
+  when: compose_result.changed or env_result.changed
+
+- name: Run docker-compose.yml
+  command: docker compose up -d
+  args:
+    chdir: "{{ lookup('env', 'HOME') }}/microservice-local"
+  when: compose_result.changed or env_result.changed 

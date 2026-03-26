@@ -1,0 +1,8 @@
+- name: Copy .env to project
+  template:
+    src: env.j2
+    dest: "{{ deploy_path }}/.env"
+    mode: "0644"
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_id }}"
+  register: env_result
