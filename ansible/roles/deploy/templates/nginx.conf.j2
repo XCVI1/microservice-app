@@ -1,0 +1,57 @@
+events {
+    worker_connections 1024;
+}
+
+http {
+    upstream auth_service {
+        server auth-service:8001;
+    }
+
+    upstream core_service {
+        server core-service:8002;
+    }
+
+    server {
+        listen 80;
+
+        location /api/v1/auth/register {
+            proxy_pass http://auth_service;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+        }
+
+        location /api/v1/auth/login {
+            proxy_pass http://auth_service;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+        }
+
+        location /api/v1/auth/refresh {
+            proxy_pass http://auth_service;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+        }
+
+        location /api/v1/auth/ {
+            proxy_pass http://auth_service;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header Authorization $http_authorization;
+        }
+
+        location /api/v1/ {
+            proxy_pass http://core_service;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header Authorization $http_authorization;
+        }
+
+        location /health/auth {
+            proxy_pass http://auth_service/health;
+        }
+
+        location /health/core {
+            proxy_pass http://core_service/health;
+        }
+    }
+}
