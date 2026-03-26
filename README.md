@@ -1,3 +1,6 @@
+![Auth Service CI](https://github.com/XCVI1/microservice-app/actions/workflows/auth-service.yml/badge.svg)
+![Core Service CI](https://github.com/XCVI1/microservice-app/actions/workflows/core-service.yml/badge.svg)
+
 # Microservice App
 
 ## Overview
@@ -26,6 +29,34 @@ The system follows a microservices architecture:
 
 ---
 
+## Project Structure
+microservice-app/
+│
+├── auth-service/
+│   ├── app/
+│   ├── alembic/
+│   ├── tests/
+│   └── Dockerfile
+│
+├── core-service/
+│   ├── app/
+│   ├── alembic/
+│   └── Dockerfile
+│
+├── api-gateway/
+│   └── nginx.conf
+│
+├── ansible/
+│   ├── inventories/
+│   ├── playbooks/
+│   ├── roles/
+│   └── ansible.cfg
+│
+├── docker-compose.yml
+└── .env
+
+---
+
 ## Containerization
 
 All services are fully containerized and orchestrated via `docker-compose`.
@@ -48,6 +79,47 @@ docker compose up -d
 * Environment variables injected via `.env`
 * Strict validation using Pydantic Settings
 * No hardcoded secrets in codebase
+
+---
+# Infrastructure Automation (Ansible)
+
+The project includes a fully automated deployment system built with **Ansible**, enabling reproducible environments and consistent service rollout.
+
+## Features
+
+- Automated environment provisioning
+- Docker & Docker Compose installation
+- Template-based configuration generation (`docker-compose.yml`, `.env`, `nginx.conf`)
+- Idempotent deployment (only changed components are restarted)
+- Zero-touch local setup via `ansible-playbook setup.yml`
+- Automated service rollout via `ansible-playbook deploy.yml`
+
+## Directory Structure
+
+```bash
+ansible/
+├── ansible.cfg
+├── inventories/
+│   └── local/
+│       ├── hosts.ini
+│       └── group_vars/
+│           └── local.yml
+├── playbooks/
+│   ├── setup.yml
+│   └── deploy.yml
+└── roles/
+    ├── setup/
+    │   └── tasks/
+    └── deploy/
+        ├── tasks/
+        └── templates/
+```
+## Usage
+
+```bash
+ansible-playbook playbooks/setup.yml -K
+ansible-playbook playbooks/deploy.yml -K
+```
 
 ---
 
@@ -141,19 +213,6 @@ Implemented using GitHub Actions with a multi-stage pipeline.
 
 ---
 
-## Project Structure
-
-```
-microservice-app/
-├── auth-service/
-├── core-service/
-├── api-gateway/
-├── docker-compose.yml
-└── .env
-```
-
----
-
 ## Implemented
 
 * [x] Microservices architecture
@@ -171,6 +230,7 @@ microservice-app/
 * [x] Automated rollback strategy
 * [x] Telegram deployment notifications
 * [x] GitHub Releases automation
+* [X] Ansible automation
 
 ---
 
