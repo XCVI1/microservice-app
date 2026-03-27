@@ -102,10 +102,12 @@ The project includes a fully automated deployment system built with **Ansible**,
 ansible/
 ├── ansible.cfg
 ├── inventories/
-│   └── local/
-│       ├── hosts.ini
+│   ├── production/
 │       └── group_vars/
-│           └── local.yml
+│   ├── staging/
+│       └── group_vars/
+│   └── local/
+│       └── group_vars/
 ├── playbooks/
 │   ├── setup.yml
 │   └── deploy.yml
@@ -113,14 +115,19 @@ ansible/
     ├── setup/
     │   └── tasks/
     └── deploy/
-        ├── tasks/
-        └── templates/
+    │  ├── tasks/
+    │  └── templates/
+    └── rollback/
+        ├── defaults/
+        └── tasks/
+
 ```
 ## Usage
-
 ```bash
+ansible-playbook -i inventories/staging/hosts.ini playbooks/rollback.yml -e "service=core-service"
 ansible-playbook playbooks/setup.yml -K
 ansible-playbook playbooks/deploy.yml -K
+
 ```
 
 ---
