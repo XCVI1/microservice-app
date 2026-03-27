@@ -48,8 +48,8 @@ jobs:
 
       - name: Scan for secrets
         uses: gitleaks/gitleaks-action@v2
-        with:
-          args: detect --source . --no-git
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   pytest:
     runs-on: ubuntu-latest
@@ -136,8 +136,8 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: 'docker-compose.yml,api-gateway/nginx.conf'
           target: "~/microservice"
-
-      - name: Deploy to server
+      
+      - name: Backup current image tag
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.SSH_HOST_STAGING }}
@@ -146,49 +146,47 @@ jobs:
           script: |
             cd ~/microservice
 
-            PREVIOUS=$(docker inspect core-service --format='{{.Config.Image}}' 2>/dev/null || echo "")
-            if [ -z "$PREVIOUS" ]; then
-              echo "No previous image, cannot rollback"
-            fi
+            CURRENT=$(docker inspect core-service --format='{{.Config.Image}}' 2>/dev/null || echo "")
+            echo $CURRENT > ~/microservice/backups/.backup_core_image
+            echo "Backed up: $CURRENT"
 
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST_STAGING }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            set -e
+            cd ~/microservice
+
+            # Healthcheck
+            wait_healthy() {
+              local url=$1
+              for i in $(seq 1 10); do
+                echo "Attempt $i: checking $url"
+                curl -f -s -o /dev/null "$url" && return 0
+                sleep 5
+              done
+              return 1
+            }
+
+            PREVIOUS=$(cat ~/microservice/backups/.backup_core_image 2>/dev/null || echo "")
+
+            # Deploy to server
             docker compose pull
             docker compose up -d
-            docker compose run --rm core-service alembic upgrade head || exit 1
-            
-            # Healthcheck vars
-            MAX_ATTEMPTS=10
-            ATTEMPT=0
-            HEALTHY=false
+            docker compose run --rm core-service alembic upgrade head
 
-            while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
-              ATTEMPT=$((ATTEMPT + 1))
-              echo "Attempt $ATTEMPT: Checking /health/auth"
 
-              if curl -f -s -o /dev/null http://localhost:8080/health/core; then
-                HEALTHY=true
-                echo "Service is healthy"
-                break
-              else
-                echo "Service not ready, retrying"
-                sleep 5
-              fi
-            done
-
-            if [ "$HEALTHY" = false ]; then
-              echo "Service did not healthy, rolling back"
+            if ! wait_healthy http://localhost:8080/health/core; then
+              echo "Healthcheck failed, rolling back"
               if [ -n "$PREVIOUS" ]; then
                 docker compose down
                 docker pull "$PREVIOUS"
                 docker compose up -d
-                echo "Service rolled back to previous image $PREVIOUS"
-
-                # Healthcheck after rollback
-                if curl -f -s -o /dev/null http://localhost:8080/health/core; then
-                  echo "Service is healthy"
-                else
-                  echo "Rollback failed"
-                  exit 1
-                fi
+                wait_healthy http://localhost:8080/health/core || { echo "Rollback failed"; exit 1; }
+                echo "Rolled back to $PREVIOUS"
               else
                 echo "No previous image, deploy failed"
                 exit 1
@@ -213,7 +211,7 @@ jobs:
           source: 'docker-compose.yml,api-gateway/nginx.conf'
           target: "~/microservice"
 
-      - name: Deploy to server
+      - name: Backup current image tag
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.SSH_HOST_PRODUCTION }}
@@ -221,53 +219,48 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd ~/microservice
-            
-            # Previous image to rollback
-            PREVIOUS=$(docker inspect core-service --format='{{.Config.Image}}' 2>/dev/null || echo "")
-            if [ -z "$PREVIOUS" ]; then
-              echo "No previous image, cannot rollback"
-            fi
-            
+
+            CURRENT=$(docker inspect core-service --format='{{.Config.Image}}' 2>/dev/null || echo "")
+            echo $CURRENT > ~/microservice/backups/.backup_core_image
+            echo "Backed up: $CURRENT"
+
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST_PRODUCTION }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            set -e
+            cd ~/microservice
+
+            # Healthcheck
+            wait_healthy() {
+              local url=$1
+              for i in $(seq 1 10); do
+                echo "Attempt $i: checking $url"
+                curl -f -s -o /dev/null "$url" && return 0
+                sleep 5
+              done
+              return 1
+            }
+
+            PREVIOUS=$(cat ~/microservice/backups/.backup_core_image 2>/dev/null || echo "")
+
             # Deploy to server
             docker compose pull
             docker compose up -d
-            docker compose run --rm core-service alembic upgrade head || exit 1
+            docker compose run --rm core-service alembic upgrade head
 
-            # Healthcheck vars
-            MAX_ATTEMPTS=10
-            ATTEMPT=0
-            HEALTHY=false
 
-            while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
-              ATTEMPT=$((ATTEMPT + 1))
-              echo "Attempt $ATTEMPT: Checking /health/auth"
-
-              if curl -f -s -o /dev/null http://localhost:8080/health/core; then
-                HEALTHY=true
-                echo "Service is healthy"
-                break
-              else
-                echo "Service not ready, retrying"
-                sleep 5
-              fi
-            done
-
-            # Check healthy
-            if [ "$HEALTHY" = false ]; then
-              echo "Service did not healthy, rolling back"
+            if ! wait_healthy http://localhost:8080/health/core; then
+              echo "Healthcheck failed, rolling back"
               if [ -n "$PREVIOUS" ]; then
                 docker compose down
                 docker pull "$PREVIOUS"
                 docker compose up -d
-                echo "Service rolled back to previous image $PREVIOUS"
-
-                # Healthcheck after rollback
-                if curl -f -s -o /dev/null http://localhost:8080/health/core; then
-                  echo "Service is healthy"
-                else
-                  echo "Rollback failed"
-                  exit 1
-                fi
+                wait_healthy http://localhost:8080/health/core || { echo "Rollback failed"; exit 1; }
+                echo "Rolled back to $PREVIOUS"
               else
                 echo "No previous image, deploy failed"
                 exit 1
@@ -281,7 +274,7 @@ jobs:
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
           token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           message: |
-            Auth service deployed to production.
+            Core service deployed to production.
             - Commit: `${{ github.sha }}`
             - Link: [View Workflow](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
 
@@ -292,7 +285,7 @@ jobs:
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
           token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           message: |
-            Auth-service deployment failed.
+            Core-service deployment failed.
             - Commit: `${{ github.sha }}`
             - Link: [View Workflow](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
 
