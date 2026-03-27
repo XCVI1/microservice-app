@@ -9,4 +9,5 @@
     src: nginx.conf.j2
     dest: "{{ deploy_path }}/api-gateway/nginx.conf"
     mode: "0644"
-  register: nginx_result
+  notify:
+    - reload nginx
