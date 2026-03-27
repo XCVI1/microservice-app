@@ -1,0 +1,2 @@
+health_port: 8080
+work_dir: /root/microservice
