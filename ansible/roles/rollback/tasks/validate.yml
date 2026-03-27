@@ -1,0 +1,4 @@
+- name: Fail if service not specified
+  fail:
+    msg: "Need service: -e 'service=auth-service'"
+  when: service == ""

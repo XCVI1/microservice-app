@@ -1,0 +1,16 @@
+- name: Pull previous image
+  shell: "docker pull {{ previous_image }}"
+
+- name: Stop service
+  shell: "docker compose -f {{ work_dir }}/docker-compose.yml stop {{ service }}"
+
+- name: Start service with previous image
+  shell: |
+    docker compose -f {{ work_dir }}/docker-compose.yml \
+                 up -d --no-deps \
+                 --pull never \
+                 {{ service }}
+
+- name: Print rollback result
+  debug:
+    msg: "Rolled back {{ service }} to {{ previous_image }}"

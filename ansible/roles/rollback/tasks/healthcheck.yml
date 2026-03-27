@@ -1,0 +1,12 @@
+- name: Wait for service to be healthy
+  uri:
+    url: "http://localhost:{{ health_port }}/health/{{ service | replace('-service', '') }}"
+    status_code: 200
+  register: health
+  retries: 10
+  delay: 5
+  until: health.status == 200
+
+- name: Healthcheck passed
+  debug:
+    msg: "Service {{ service }} is healthy after rollback"

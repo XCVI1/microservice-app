@@ -1,0 +1,23 @@
+- name: Check backup file exists
+  stat:
+    path: "{{ work_dir }}/backups/.backup_{{ service | replace('-', '_') }}_image"
+  register: backup_file
+
+- name: Fail if backup file not found
+  fail:
+    msg: "No backup file found for {{ service }}"
+  when: not backup_file.stat.exists
+
+- name: Read backup image
+  slurp:
+    src: "{{ work_dir }}/backups/.backup_{{ service | replace('-', '_') }}_image"
+  register: backup_content
+
+- name: Set previous image
+  set_fact:
+    previous_image: "{{ backup_content.content | b64decode | trim }}"
+
+- name: Fail if backup is empty
+  fail:
+    msg: "Backup file is empty for {{ service }}"
+  when: previous_image == ""
