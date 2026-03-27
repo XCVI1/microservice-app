@@ -1,0 +1,9 @@
+- name: restart docker compose
+  command: docker compose -f {{ deploy_path }}/docker-compose.yml up -d
+  args:
+    chdir: "{{ deploy_path }}"
+
+- name: reload nginx
+  service:
+    name: nginx
+    state: reloaded
