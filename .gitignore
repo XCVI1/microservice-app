@@ -26,3 +26,6 @@ htmlcov/
 
 # Alembic
 alembic/versions/__pycache__/
+
+# Ansible
+ansible/inventories/*/hosts.ini
