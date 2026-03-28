@@ -161,6 +161,7 @@ jobs:
           script: |
             set -e
             cd ~/microservice
+            docker network inspect microservice-net >/dev/null 2>&1 || docker network create microservice-net
             
             # Healthcheck
             wait_healthy() {
@@ -233,8 +234,9 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            set -e
+            set -ei
             cd ~/microservice
+            docker network inspect microservice-net >/dev/null 2>&1 || docker network create microservice-net
 
             # Healthcheck
             wait_healthy() {
