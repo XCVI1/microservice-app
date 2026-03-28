@@ -9,6 +9,7 @@ Instrumentator().instrument(app).expose(app)
 
 app.include_router(auth_router, prefix="/api/v1")
 
+
 @app.get("/health", tags=["system"])
 async def health():
     return {"status": "ok", "service": "auth"}
