@@ -6,7 +6,7 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - /microservice-app/monitoring/configs/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./configs/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
     networks:
       - default
@@ -31,7 +31,7 @@ services:
     ports:
       - "3100:3100"
     volumes:
-      - /microservice-app/monitoring/configs/loki-config.yml:/etc/loki/local-config.yml
+      - ./configs/loki-config.yml:/etc/loki/local-config.yml
     networks:
       - default
 
@@ -73,7 +73,7 @@ services:
     ports:
       - "9080:9080"
     volumes:
-      - /microservice-app/monitoring/configs/promtail.yml:/etc/promtail/config.yml:ro
+      - ./configs/promtail.yml:/etc/promtail/config.yml:ro
       - /var/log:/var/log:ro
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
     networks:
@@ -83,3 +83,7 @@ volumes:
   prometheus_data:
   grafana_data:
 
+networks:
+  default:
+    external: true
+    name: microservice-net
