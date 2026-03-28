@@ -53,7 +53,11 @@ microservice-app/
 │   ├── playbooks/
 │   ├── roles/
 │   └── ansible.cfg
-│
+│ 
+├── monitoring
+│   ├── configs/
+│   └── docker-compose.monitoring.yml
+│ 
 ├── docker-compose.yml
 └── .env
 ```
