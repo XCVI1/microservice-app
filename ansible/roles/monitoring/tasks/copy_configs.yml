@@ -1,0 +1,32 @@
+- name: Create monitoring directory
+  file:
+    path: /opt/monitoring
+    state: directory
+
+- name: Ensure configs directory exists
+  file:
+    path: /opt/monitoring/configs
+    state: directory
+
+- name: Copy docker-compose.yml
+  template:
+    src: docker-compose.yml.j2
+    dest: /opt/monitoring/docker-compose.yml
+
+- name: Copy prometheus config
+  template:
+    src: prometheus.yml.j2
+    dest: /opt/monitoring/configs/prometheus.yml
+    mode: '0644'
+
+- name: Copy promtail config
+  template:
+    src: promtail.yml.j2
+    dest: /opt/monitoring/configs/promtail.yml
+    mode: '0644'
+
+- name: Copy loki config
+  template:
+    src: loki-config.yml.j2
+    dest: /opt/monitoring/configs/loki-config.yml
+    mode: '0644'

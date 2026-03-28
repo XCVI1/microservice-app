@@ -1,0 +1,4 @@
+- name: Start monitoring stack
+  shell: docker compose up -d
+  args:
+    chdir: /opt/monitoring

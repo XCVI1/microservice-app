@@ -1,0 +1,3 @@
+- import_tasks: copy_configs.yml
+- import_tasks: deploy_stack.yml
+- import_tasks: healthcheck.yml

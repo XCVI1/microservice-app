@@ -1,0 +1,29 @@
+- name: Check prometheus is running
+  uri:
+    url: "http://localhost:9090/-/ready"
+    method: GET
+    status_code: 200
+  register: prometheus_health
+  retries: 20
+  delay: 3
+  until: prometheus_health.status == 200
+
+- name: Check grafana is running
+  uri:
+    url: http://localhost:3000/api/health
+    method: GET
+    status_code: 200
+  register: grafana_health
+  retries: 20
+  delay: 3
+  until: grafana_health.status == 200
+
+- name: Checkk loki is running
+  uri:
+    url: http://localhost:3100/ready
+    method: GET
+    status_code: 200
+  register: loki_health
+  retries: 20
+  delay: 3
+  until: loki_health.status == 200
