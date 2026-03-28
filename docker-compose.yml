@@ -80,3 +80,9 @@ services:
 volumes:
   pgdata_auth:
   pgdata_core:
+
+networks:
+  default:
+    external: true
+    name: microservice-net
+
