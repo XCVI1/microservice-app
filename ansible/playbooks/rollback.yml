@@ -1,5 +1,5 @@
 - name: Run rollback
-  hosts: all
+  hosts: "{{ target }}"
   become: true
 
   roles:
