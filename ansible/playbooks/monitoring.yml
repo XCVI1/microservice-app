@@ -1,0 +1,6 @@
+- name: Deploy monitoring stack
+  hosts: "{{ target }}"
+  become: true
+
+  roles:
+    - monitoring
