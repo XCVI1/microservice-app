@@ -179,8 +179,7 @@ jobs:
             # Deploy to server
             docker compose pull
             docker compose up -d
-            docker compose run --rm core-service alembic upgrade head
-
+            docker compose exec auth-service alembic upgrade head
 
             if ! wait_healthy http://localhost:8080/health/core; then
               echo "Healthcheck failed, rolling back"
@@ -254,7 +253,7 @@ jobs:
             # Deploy to server
             docker compose pull
             docker compose up -d
-            docker compose run --rm core-service alembic upgrade head
+            docker compose exec auth-service alembic upgrade head
 
 
             if ! wait_healthy http://localhost:8080/health/core; then
