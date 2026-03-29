@@ -107,18 +107,24 @@ ansible/
 ├── ansible.cfg
 ├── inventories/
 │   ├── production/
-│       └── group_vars/
+│   │   └── group_vars/
 │   ├── staging/
-│       └── group_vars/
+│   │   └── group_vars/
 │   └── local/
 │       └── group_vars/
 ├── playbooks/
 │   ├── setup.yml
-│   └── deploy.yml
+│   ├── deploy.yml
+│   ├── rollback.yml
+│   └── monitoring.yml
 └── roles/
     ├── setup/
     │   └── tasks/
-    └── deploy/
+    ├── monitoring
+    │   ├──files/
+    │   ├── tasks/
+    │   └── templates/
+    ├── deploy/
     │  ├── tasks/
     │  └── templates/
     └── rollback/
@@ -128,9 +134,16 @@ ansible/
 ```
 ## Usage
 ```bash
-ansible-playbook -i inventories/staging/hosts.ini playbooks/rollback.yml -e "service=core-service"
-ansible-playbook playbooks/setup.yml -K
-ansible-playbook playbooks/deploy.yml -K
+ansible-playbook playbooks/setup.yml -K # Setup all deps
+```
+```bash
+ansible-playbook playbooks/deploy.yml -K # Deploy poject to local server
+```
+```bash
+ansible-playbook -i inventories/local/hosts.ini playbooks/monitoring.yml -e "target=local" -K # Deploy monitoring stack
+```
+```bash
+ansible-playbook -i inventories/staging/hosts.ini playbooks/rollback.yml -e "service=core-service" # Rollback to previous image
 
 ```
 
@@ -249,7 +262,7 @@ Implemented using GitHub Actions with a multi-stage pipeline.
 
 ## Roadmap
 
-* [ ] Redis (caching, rate limiting)
-* [ ] Observability stack (Prometheus + Grafana)
-* [ ] Centralized logging (ELK / Loki)
+* [x] Observability stack (Prometheus + Grafana)
+* [x] Centralized logging (ELK / Loki)
 * [ ] Kubernetes deployment
+* [ ] Redis (caching, rate limiting)
