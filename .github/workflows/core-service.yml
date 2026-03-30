@@ -210,7 +210,7 @@ jobs:
           host: ${{ secrets.SSH_HOST_PRODUCTION }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: 'docker-compose.yml,api-gateway/nginx.conf'
+          source: 'docker-compose.prod.yml,api-gateway/nginx.prod.conf'
           target: "~/microservice"
 
       - name: Backup current image tag
@@ -251,8 +251,8 @@ jobs:
             PREVIOUS=$(cat ~/microservice/backups/.backup_core_image 2>/dev/null || echo "")
 
             # Deploy to server
-            docker compose pull
-            docker compose up -d
+            docker compose -f docker-compose.prod.yml pull
+            docker compose -f docker-compose.prod.yml up -d
             docker compose exec auth-service alembic upgrade head
 
 
