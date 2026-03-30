@@ -29,3 +29,7 @@ alembic/versions/__pycache__/
 
 # Ansible
 ansible/inventories/*/hosts.ini
+
+# k8s
+**/secret.yml
+
