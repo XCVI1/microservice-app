@@ -1,0 +1,92 @@
+version: "3.9"
+
+services:
+  auth-service:
+    image: ${DOCKERHUB_USERNAME}/auth-service:latest
+    container_name: auth-service
+    environment:
+      APP_PORT: 8001
+      DATABASE_URL: postgresql+asyncpg://user:password@postgres-auth:5432/auth_db
+    volumes:
+      - ./auth-service/alembic/versions:/app/alembic/versions
+    depends_on:
+      postgres-auth:
+        condition: service_healthy
+    networks:
+      - default
+
+  core-service:
+    image: ${DOCKERHUB_USERNAME}/core-service:latest
+    container_name: core-service
+    depends_on:
+      postgres-core:
+        condition: service_healthy
+      auth-service:
+        condition: service_started
+    environment:
+      AUTH_SERVICE_URL: http://auth-service:8001
+      APP_PORT: 8002
+      DATABASE_URL: postgresql+asyncpg://user:password@postgres-core:5432/core_db
+    volumes:
+      - ./core-service/alembic/versions:/app/alembic/versions
+    networks:
+      - default
+
+  api-gateway:
+    image: nginx:stable-alpine
+    container_name: api-gateway
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./api-gateway/nginx.prod.conf:/etc/nginx/nginx.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/www/certbot:/var/www/certbot
+    depends_on:
+      - auth-service
+      - core-service
+    networks:
+      - default
+
+  postgres-auth:
+    image: postgres:15
+    container_name: postgres-auth
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: auth_db
+    volumes:
+      - pgdata_auth:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d auth_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - default
+
+  postgres-core:
+    image: postgres:15
+    container_name: postgres-core
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: core_db
+    volumes:
+      - pgdata_core:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d core_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - default
+
+volumes:
+  pgdata_auth:
+  pgdata_core:
+
+networks:
+  default:
+    external: true
+    name: microservice-net
