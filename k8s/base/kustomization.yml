@@ -1,0 +1,4 @@
+resources:
+  - auth-service
+  - core-service
+  - api-gateway
