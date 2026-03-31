@@ -1,0 +1,15 @@
+resources:
+  - ../../base
+
+patches:
+  - path: auth-patch.yml
+  - path: core-patch.yml
+  - path: gateway-patch.yml
+
+images:
+  - name: danyafi/auth-service
+    newTag: PLACEHOLDER
+  - name: danyafi/core-service
+    newTag: PLACEHOLDER
+  - name: danyafi/api-gateway
+    newTag: PLACEHOLDER
