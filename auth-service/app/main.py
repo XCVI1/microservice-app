@@ -3,7 +3,7 @@ from prometheus_fastapi_instrumentator import Instrumentator
 
 from app.auth.router import router as auth_router
 
-app = FastAPI(title="Auth Service", version="1.0.0")
+app = FastAPI(title="Auth Service!", version="1.0.0")
 
 Instrumentator().instrument(app).expose(app)
 

@@ -19,6 +19,6 @@ ENV PYTHONUNBUFFERED=1
 EXPOSE 8002
 
 HEALTHCHECK --interval=10s --timeout=5s \
-	CMD curl -f http://localhost:${APP_PORT}/health || exit 1
+	CMD curl -f http://localhost:8002/health || exit 1
 
-CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${APP_PORT}"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8002"]
