@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-gateway-config
+data:
+  nginx.conf: |
+    events {}
+
+    http {
+      server {
+        listen 80;
+
+        location /auth/ {
+          proxy_pass http://auth-service:8001;
+        }
+
+        location /core/ {
+          proxy_pass http://core-service:8002;
+        }
+      }
+    }
