@@ -18,17 +18,17 @@ services:
   core-service:
     image: ${DOCKERHUB_USERNAME}/core-service:latest
     container_name: core-service
-    depends_on:
-      postgres-core:
-        condition: service_healthy
-      auth-service:
-        condition: service_started
     environment:
       AUTH_SERVICE_URL: http://auth-service:8001
       APP_PORT: 8002
       DATABASE_URL: postgresql+asyncpg://user:password@postgres-core:5432/core_db
     volumes:
       - ./core-service/alembic/versions:/app/alembic/versions
+    depends_on:
+      postgres-core:
+        condition: service_healthy
+      auth-service:
+        condition: service_started
     networks:
       - default
 
