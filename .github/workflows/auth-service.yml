@@ -138,23 +138,16 @@ jobs:
           mkdir -p ~/.kube
           echo "${{ secrets.KUBECONFIG_STAGING }}" > ~/.kube/config
 
-      - name: Update image in kustomization
-        run: kustomize edit set image danyafi/auth-service=${{ secrets.DOCKERHUB_USERNAME }}/auth-service:${{ github.sha }}
-        working-directory: k8s/overlays/staging
-
-      - name: Apply secrets
+      - name: Deploy auth-service with helm
         run: |
-          kubectl create secret generic auth-secrets \
-            --from-literal=POSTGRES_PASSWORD="${{ secrets.AUTH_POSTGRES_PASSWORD }}" \
-            --from-literal=DATABASE_URL="${{ secrets.AUTH_DATABASE_URL }}" \
-            --from-literal=SECRET_KEY="${{ secrets.AUTH_SECRET_KEY }}" \
-            --dry-run=client -o yaml | kubectl apply -f -
-
-      - name: Deploy to staging
-        run: kubectl apply -k k8s/overlays/staging
+          helm upgrade --install auth-service ./auth-service/charts/auth-service \
+            --namespace default \
+            --set image.repository=${{ secrets.DOCKERHUB_USERNAME }}/auth-service \
+            --set image.tag=${{ github.sha }} \
+            --values charts/auth-service/values-staging.yml
 
       - name: Wait for rollout
-        run: kubectl rollout status deployment/auth-deployment --timeout=120s
+        run: kubectl rollout status deployment/auth-service-auth-service --timeout=120s
   
   deploy-production:
     runs-on: ubuntu-latest
@@ -173,23 +166,16 @@ jobs:
           mkdir -p ~/.kube
           echo "${{ secrets.KUBECONFIG_PRODUCTION }}" > ~/.kube/config
 
-      - name: Update image in kustomization
-        run: kustomize edit set image danyafi/auth-service=${{ secrets.DOCKERHUB_USERNAME }}/auth-service:${{ github.ref_name }}
-        working-directory: k8s/overlays/production
-
-      - name: Apply secrets
+      - name: Deploy auth-service with helm
         run: |
-          kubectl create secret generic auth-secrets \
-            --from-literal=POSTGRES_PASSWORD="${{ secrets.AUTH_POSTGRES_PASSWORD }}" \
-            --from-literal=DATABASE_URL="${{ secrets.AUTH_DATABASE_URL }}" \
-            --from-literal=SECRET_KEY="${{ secrets.AUTH_SECRET_KEY }}" \
-            --dry-run=client -o yaml | kubectl apply -f -
-
-      - name: Deploy to production
-        run: kubectl apply -k k8s/overlays/production
+          helm upgrade --install auth-service ./auth-service/charts/auth-service \
+            --namespace default \
+            --set image.repository=${{ secrets.DOCKERHUB_USERNAME }}/auth-service \
+            --set image.tag=${{ github.ref_name }} \
+            --values charts/auth-service/values-production.yml
 
       - name: Wait for rollout
-        run: kubectl rollout status deployment/auth-deployment --timeout=120s
+        run: kubectl rollout status deployment/auth-service-auth-service --timeout=120s
 
       - name: Notify Telegram on success
         if: success()
