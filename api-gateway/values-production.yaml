@@ -1,3 +1,4 @@
 image:
-  tag: "prod"
+  tag: latest
 replicaCount: 3
+
