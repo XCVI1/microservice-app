@@ -140,7 +140,7 @@ jobs:
 
       - name: Deploy auth-service with helm
         run: |
-          helm upgrade --install auth-service ./auth-service \
+          helm upgrade --install auth-service ./microservice/auth-service \
             --namespace default \
             --set image.repository=${{ secrets.DOCKERHUB_USERNAME }}/auth-service \
             --set image.tag=latest \
@@ -168,7 +168,7 @@ jobs:
 
       - name: Deploy auth-service with helm
         run: |
-          helm upgrade --install auth-service ./auth-service \
+          helm upgrade --install auth-service ./microservice/auth-service \
             --namespace default \
             --set image.repository=${{ secrets.DOCKERHUB_USERNAME }}/auth-service \
             --set image.tag=latest \
