@@ -1,0 +1,13 @@
+replicaCount: 1
+
+image:
+  repository: danyafi/auth-service
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8001
+
+ingress:
+  enabled: false
