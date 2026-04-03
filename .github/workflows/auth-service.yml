@@ -140,11 +140,11 @@ jobs:
 
       - name: Deploy auth-service with helm
         run: |
-          helm upgrade --install auth-service ./auth-service/charts/auth-service \
+          helm upgrade --install auth-service ./auth-service \
             --namespace default \
             --set image.repository=${{ secrets.DOCKERHUB_USERNAME }}/auth-service \
-            --set image.tag=${{ github.sha }} \
-            --values charts/auth-service/values-staging.yml
+            --set image.tag=latest \
+            --values ./auth-service/values-staging.yaml
 
       - name: Wait for rollout
         run: kubectl rollout status deployment/auth-service-auth-service --timeout=120s
@@ -168,11 +168,11 @@ jobs:
 
       - name: Deploy auth-service with helm
         run: |
-          helm upgrade --install auth-service ./auth-service/charts/auth-service \
+          helm upgrade --install auth-service ./auth-service \
             --namespace default \
             --set image.repository=${{ secrets.DOCKERHUB_USERNAME }}/auth-service \
-            --set image.tag=${{ github.ref_name }} \
-            --values charts/auth-service/values-production.yml
+            --set image.tag=latest \
+            --values ./auth-service/values-production.yaml
 
       - name: Wait for rollout
         run: kubectl rollout status deployment/auth-service-auth-service --timeout=120s

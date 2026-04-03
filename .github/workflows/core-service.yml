@@ -140,11 +140,11 @@ jobs:
       
       - name: Deploy core-service with helm
         run: |
-          helm upgrade --install core-service ./core-service/charts/core-service \
+          helm upgrade --install core-service ./core-service \
             --namespace default \
             --set image.repository=${{ secrets.DOCKERHUB_USERNAME }}/core-service \
-            --set image.tag=${{ github.ref_name }} \
-            --values core-service/charts/core-service/values-staging.yml
+            --set image.tag=latest \
+            --values ./core-service/values-staging.yaml
 
       - name: Wait for rollout
         run: kubectl rollout status deployment/core-service-core-service --timeout=120s
@@ -168,11 +168,11 @@ jobs:
 
       - name: Deploy core-service with helm
         run: |
-          helm upgrade --install core-service ./core-service/charts/core-service \
+          helm upgrade --install core-service ./core-service \
             --namespace default \
             --set image.repository=${{ secrets.DOCKERHUB_USERNAME }}/core-service \
-            --set image.tag=${{ github.ref_name }} \
-            --values core-service/charts/core-service/values-production.yml
+            --set image.tag=latest \
+            --values ./core-service/values-production.yaml
 
       - name: Wait for rollout
         run: kubectl rollout status deployment/core-service-core-service --timeout=120s
