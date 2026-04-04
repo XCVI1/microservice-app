@@ -7,7 +7,7 @@
 
 Microservice App is a production-oriented backend system designed with a strong emphasis on DevOps automation, reliability, and scalability.
 
-The project implements a full CI/CD lifecycle, enabling automated testing, containerization, security scanning, and zero-downtime deployments with rollback capabilities.
+The project implements a full CI/CD lifecycle, enabling automated testing, containerization, security scanning, and zero-downtime deployments with rollback capabilities. Services are deployed on Kubernetes (k3s) with Helm chart management and automated provisioning via Ansible.
 
 ---
 
@@ -23,85 +23,99 @@ The system follows a microservices architecture:
 ### Key Design Decisions
 
 * Single entry point via API Gateway
-* Internal service communication over Docker network
-* Environment-driven configuration
+* Internal service communication over Kubernetes ClusterIP services
+* Environment-driven configuration via Kubernetes Secrets and ConfigMaps
 * Stateless services for scalability
+* Helm-based deployment management
 
 ---
 
 ## Project Structure
-
 ```bash
 microservice-app/
 │
 ├── auth-service/
 │   ├── app/
 │   ├── alembic/
+│   ├── helm/
 │   ├── tests/
 │   └── Dockerfile
 │
 ├── core-service/
 │   ├── app/
 │   ├── alembic/
+│   ├── helm/
 │   └── Dockerfile
 │
 ├── api-gateway/
-│   └── nginx.conf
+│   ├── nginx.conf
+│   ├── nginx.prod.conf
+│   ├── Chart.yaml
+│   ├── values.yaml
+│   ├── values-production.yaml
+│   └── values-staging.yaml
+│
+├── k8s/
+│   └── base/
+│       ├── api-gateway/
+│       ├── auth-service/
+│       └── core-service/
 │
 ├── ansible/
 │   ├── inventories/
 │   ├── playbooks/
 │   ├── roles/
 │   └── ansible.cfg
-│ 
-├── monitoring
-│   ├── configs/
-│   └── docker-compose.monitoring.yml
-│ 
+│
+├── monitoring/
+│   ├── configs/
+│   └── docker-compose.monitoring.yml
+│
 ├── docker-compose.yml
 └── .env
 ```
+
 ---
 
-## Containerization
+## Kubernetes Deployment (k3s)
 
-All services are fully containerized and orchestrated via `docker-compose`.
+Services are deployed on a lightweight Kubernetes cluster using k3s with Helm for package management.
 
+### Stack
+
+* **k3s** — lightweight Kubernetes distribution
+* **Helm** — Kubernetes package manager
+* **Traefik** — built-in ingress controller
+* **Kubernetes Secrets** — sensitive configuration management
+* **ConfigMaps** — non-sensitive configuration
+
+### Deploy via Helm
 ```bash
-docker compose up -d
+# auth-service and core-service (via CI/CD)
+helm upgrade --install auth-service ./auth-service \
+  --namespace default \
+  --values ./auth-service/values-production.yaml
+
+# api-gateway (via Ansible)
+ansible-playbook -i inventories/production/hosts.ini playbooks/helm.yml
 ```
 
-### Features
-
-* Isolated service environments
-* Shared internal network
-* Centralized configuration via environment variables
-* Reproducible local and remote environments
-
 ---
 
-## Configuration Management
-
-* Environment variables injected via `.env`
-* Strict validation using Pydantic Settings
-* No hardcoded secrets in codebase
-
----
-# Infrastructure Automation (Ansible)
+## Infrastructure Automation (Ansible)
 
 The project includes a fully automated deployment system built with **Ansible**, enabling reproducible environments and consistent service rollout.
 
-## Features
+### Features
 
 - Automated environment provisioning
 - Docker & Docker Compose installation
-- Template-based configuration generation (`docker-compose.yml`, `.env`, `nginx.conf`)
-- Idempotent deployment (only changed components are restarted)
-- Zero-touch local setup via `ansible-playbook setup.yml`
-- Automated service rollout via `ansible-playbook deploy.yml`
+- Helm installation and api-gateway deployment
+- Template-based configuration generation
+- Idempotent deployment
+- Automated service rollout
 
-## Directory Structure
-
+### Directory Structure
 ```bash
 ansible/
 ├── ansible.cfg
@@ -116,35 +130,35 @@ ansible/
 │   ├── setup.yml
 │   ├── deploy.yml
 │   ├── rollback.yml
-│   └── monitoring.yml
+│   ├── monitoring.yml
+│   └── helm.yml
 └── roles/
     ├── setup/
-    │   └── tasks/
-    ├── monitoring
-    │   ├──files/
-    │   ├── tasks/
-    │   └── templates/
     ├── deploy/
-    │  ├── tasks/
-    │  └── templates/
-    └── rollback/
-        ├── defaults/
-        └── tasks/
+    ├── rollback/
+    ├── monitoring/
+    └── helm/
+        ├── tasks/
+        └── vars/
 
 ```
-## Usage
-```bash
-ansible-playbook playbooks/setup.yml -K # Setup all deps
-```
-```bash
-ansible-playbook playbooks/deploy.yml -K # Deploy poject to local server
-```
-```bash
-ansible-playbook -i inventories/local/hosts.ini playbooks/monitoring.yml -e "target=local" -K # Deploy monitoring stack
-```
-```bash
-ansible-playbook -i inventories/staging/hosts.ini playbooks/rollback.yml -e "service=core-service" # Rollback to previous image
 
+### Usage
+```bash
+# Setup all dependencies
+ansible-playbook playbooks/setup.yml -K
+
+# Deploy project to local server
+ansible-playbook playbooks/deploy.yml -K
+
+# Deploy monitoring stack
+ansible-playbook -i inventories/local/hosts.ini playbooks/monitoring.yml -e "target=local" -K
+
+# Install Helm and deploy api-gateway
+ansible-playbook -i inventories/production/hosts.ini playbooks/helm.yml
+
+# Rollback to previous image
+ansible-playbook -i inventories/staging/hosts.ini playbooks/rollback.yml -e "service=core-service"
 ```
 
 ---
@@ -166,24 +180,19 @@ Implemented using GitHub Actions with a multi-stage pipeline.
 * pytest with async support
 * multi-version testing (Python 3.11 / 3.12)
 
----
-
 ### Build & Delivery
 
 * Docker image build using BuildKit
 * Layer caching for faster builds
 * Image tagging strategy:
-
   * `latest` for main branch
   * commit SHA for traceability
-
----
 
 ### Security
 
 * Container scanning via Trivy
 * Static code security analysis
-* Secrets managed via GitHub Secrets and environment variables
+* Secrets managed via GitHub Secrets and Kubernetes Secrets
 
 ---
 
@@ -192,18 +201,24 @@ Implemented using GitHub Actions with a multi-stage pipeline.
 ### Staging Deployment
 
 * Trigger: push to `main`
-* Automated deployment via SSH
-* Zero-downtime service update
+* Automated deployment via Helm
+* Zero-downtime rolling update
 * Database migrations executed automatically (Alembic)
 * Healthcheck with retry strategy
 * Automatic rollback on failure
 
 ### Production Deployment
 
-* Trigger: git tags (`auth-v*`)
+* Trigger: git tags (`auth-v*`, `core-v*`)
 * Same deployment strategy as staging
 * Release creation in GitHub
 * Telegram notifications for deployment status
+
+### API Gateway Deployment
+
+* Managed separately via Ansible
+* Trigger: manual execution
+* Helm-based deployment
 
 ---
 
@@ -220,22 +235,9 @@ Implemented using GitHub Actions with a multi-stage pipeline.
 
 * Async API testing with httpx
 * Endpoint-level validation:
-
   * authentication
   * registration
   * healthchecks
-
----
-
-## Key DevOps Features
-
-* Fully automated CI/CD pipeline
-* Environment-based configuration management
-* Containerized architecture
-* Zero-downtime deployments
-* Automated rollback mechanism
-* Security scanning integrated into pipeline
-* Multi-environment deployment (staging / production)
 
 ---
 
@@ -256,13 +258,17 @@ Implemented using GitHub Actions with a multi-stage pipeline.
 * [x] Automated rollback strategy
 * [x] Telegram deployment notifications
 * [x] GitHub Releases automation
-* [X] Ansible automation
+* [x] Ansible automation
+* [x] Kubernetes deployment (k3s)
+* [x] Helm chart management
+* [x] Observability stack (Prometheus + Grafana)
+* [x] Centralized logging
 
 ---
 
 ## Roadmap
 
-* [x] Observability stack (Prometheus + Grafana)
-* [x] Centralized logging (ELK / Loki)
-* [ ] Kubernetes deployment
 * [ ] Redis (caching, rate limiting)
+* [ ] Horizontal Pod Autoscaling
+* [ ] Terraform infrastructure provisioning
+* [ ] Separate build pipelines for staging and production environments
