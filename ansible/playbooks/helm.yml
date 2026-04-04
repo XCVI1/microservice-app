@@ -1,0 +1,5 @@
+- name: Install helm and deploy api-gateway
+  hosts: production
+  become: yes
+  roles:
+    - helm
