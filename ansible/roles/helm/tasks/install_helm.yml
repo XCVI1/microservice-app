@@ -1,0 +1,9 @@
+- name: Download helm and install script
+  shell: curl -fsSL -o /tmp/get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+  args:
+    creates: /usr/local/bin/helm
+
+- name: Install helm
+  shell: chmod 700 /tmp/get_helm.sh && /tmp/get_helm.sh
+  args:
+    creates: /usr/local/bin/helm

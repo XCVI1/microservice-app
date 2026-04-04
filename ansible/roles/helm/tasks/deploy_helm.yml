@@ -1,0 +1,9 @@
+- name: Deploy api-gateway with helm
+  shell: |
+    helm upgrade --install api-gateway ./api-gateway \
+      --namespace default \
+      --set image.repository={{ dockerhub_username }}/api-gateway \
+      --set image.tag=latest \
+      --values ./api-gateway/values-production.yaml
+  args:
+    chdir: "{{ helm_charts_dir }}"
