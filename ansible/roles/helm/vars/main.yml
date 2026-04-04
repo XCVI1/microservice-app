@@ -1,0 +1,2 @@
+helm_charts_dir: /root/microservice
+dockerhub_username: danyafi
