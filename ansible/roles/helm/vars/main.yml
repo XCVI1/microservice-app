@@ -1,2 +1,3 @@
 helm_charts_dir: /root/microservice
 dockerhub_username: danyafi
+project_dir: /home/danek/microservice-app

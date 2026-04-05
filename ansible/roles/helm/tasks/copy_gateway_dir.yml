@@ -1,0 +1,27 @@
+- name: Remove old backups
+  find:
+    paths: /root/microservice/backups
+    patterns: "api-gateway-*.tar.gz"
+    age: 7d
+    recurse: no
+  register: old_backups
+
+- name: Delete old backup files
+  file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ old_backups.files }}"
+
+- name: Backup existing api-gateway
+  archive: 
+    path: /root/microservice/api-gateway
+    dest: "/root/microservice/backups/api-gateway-{{ ansible_date_time.iso8601 }}.tar.gz"
+
+- name: Sync api-gateway to server
+  synchronize:
+    src: "{{ project_dir }}/api-gateway"
+    dest: /root/microservice/api-gateway
+    delete: yes
+    recursive: yes
+    rsync_opts:
+      - "--chmod=755"
