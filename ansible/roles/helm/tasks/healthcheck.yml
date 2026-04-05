@@ -1,0 +1,16 @@
+- name: Healthcheck api-gateway
+  uri:
+    url: "https://gateway-micr.duckdns.org/api/v1/auth/health"
+    method: GET
+    status_code: 200
+    validate_certs: yes
+  register: healthcheck_result
+    
+- name: Print healthcheck result
+  debug:
+    var: healthcheck_result
+
+- name: Fail if healthcheck failed
+  fail:
+    msg: "API Gateway healthcheck failed!"
+  when: healthcheck_result.status != 200
