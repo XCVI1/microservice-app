@@ -1,0 +1,16 @@
+- name: Check if k3s is installed
+  stat:
+    path: /usr/local/bin/k3s
+  register: k3s_binary
+
+- name: Download and install k3s
+  shell: curl -sfL https://get.k3s.io | sh -
+  when: not k3s_binary.stat.exists
+
+- name: Wait for k3s to be ready
+  shell: kubectl get nodes
+  register: result
+  until: result.rc == 0
+  retries: 10
+  delay: 5
+  when: not k3s_binary.stat.exists
