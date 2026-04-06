@@ -263,6 +263,7 @@ Implemented using GitHub Actions with a multi-stage pipeline.
 * [x] Helm chart management
 * [x] Observability stack (Prometheus + Grafana)
 * [x] Centralized logging
+* [x] Separate build pipelines for staging and production environments
 
 ---
 
@@ -271,4 +272,4 @@ Implemented using GitHub Actions with a multi-stage pipeline.
 * [ ] Redis (caching, rate limiting)
 * [ ] Horizontal Pod Autoscaling
 * [ ] Terraform infrastructure provisioning
-* [ ] Separate build pipelines for staging and production environments
+
