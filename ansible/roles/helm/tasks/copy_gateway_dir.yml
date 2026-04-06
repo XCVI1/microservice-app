@@ -19,9 +19,9 @@
 
 - name: Sync api-gateway to server
   synchronize:
-    src: "{{ project_dir }}/api-gateway"
+    src: "{{ project_dir }}/api-gateway/"
     dest: /root/microservice/api-gateway
     delete: yes
     recursive: yes
     rsync_opts:
-      - "--chmod=755"
+      - "--chmod=D755,F644"
