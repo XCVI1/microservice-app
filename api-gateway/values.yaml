@@ -15,6 +15,22 @@ ingress:
   host: gateway-micr.duckdns.org
   tlsSecret: gateway-cert
 
+livenessProbe:
+  httpGet:
+    path: /
+    port: 80
+  initialDelaySeconds: 5
+  periodSeconds: 15
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: 80
+  initialDelaySeconds: 3
+  periodSeconds: 10
+  failureThreshold: 3
+
 nginxConfig: |
   events {}
 
@@ -42,3 +58,5 @@ nginxConfig: |
     }
   }
 
+httpRoute:
+  enabled: false
