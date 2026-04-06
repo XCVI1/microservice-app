@@ -1,3 +1,30 @@
 image:
   tag: latest
 replicaCount: 2
+
+env:
+  DATABASE_URL: postgresql+asyncpg://user:password@postgres-core-postgresql.default.svc.cluster.local:5432/core_db
+
+livenessProbe:
+  httpGet:
+    path: /health/live
+    port: 8002
+  initialDelaySeconds: 10
+  periodSeconds: 15
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /health/ready
+    port: 8002
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  failureThreshold: 3
+
+startupProbe:
+  httpGet:
+    path: /health/live
+    port: 8002
+  failureThreshold: 12
+  periodSeconds: 5
+
