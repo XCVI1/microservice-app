@@ -1,5 +1,3 @@
-replicaCount: 1
-
 image:
   repository: danyafi/core-service
   tag: "latest"
@@ -9,8 +7,18 @@ service:
   type: ClusterIP
   port: 8002
 
+env:
+  DATABASE_URL: ""
+
 ingress:
   enabled: false
+
+deployment:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
 
 livenessProbe:
   httpGet:

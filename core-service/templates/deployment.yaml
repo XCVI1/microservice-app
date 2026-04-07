@@ -6,11 +6,21 @@ spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ include "core-service.name" . }}
+      {{- include "core-service.selectorLabels" . | nindent 6 }}
+  strategy:
+    type: {{ .Values.deployment.strategy.type }}
+    rollingUpdate:
+      maxUnavailable: {{ .Values.deployment.strategy.rollingUpdate.maxUnavailable }}
+      maxSurge: {{ .Values.deployment.strategy.rollingUpdate.maxSurge }}
+
+  minReadySeconds: {{ .Values.deployment.minReadySeconds | default 0 }}
+  revisionHistoryLimit: {{ .Values.deployment.revisionHistoryLimit | default 3 }}
+  progressDeadlineSeconds: {{ .Values.deployment.progressDeadlineSeconds | default 60 }}
+
   template:
     metadata:
       labels:
-        app: {{ include "core-service.name" . }}
+        {{- include "core-service.selectorLabels" . | nindent 8 }}
     spec:
       containers:
         - name: core-service
@@ -18,6 +28,8 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: 8002
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
           env:
             - name: DATABASE_URL
               value: {{ .Values.env.DATABASE_URL | quote }}
