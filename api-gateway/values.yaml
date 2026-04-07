@@ -1,19 +1,24 @@
-replicaCount: 2
-
 image:
   repository: danyafi/api-gateway
-  tag: "latest"
+  tag: "production"
   pullPolicy: IfNotPresent
 
 service:
   type: ClusterIP
   port: 80
 
+deployment:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+
 ingress:
   enabled: true
   className: traefik
-  host: gateway-micr.duckdns.org
   tlsSecret: gateway-cert
+  host: gateway-micr.duckdns.org
 
 livenessProbe:
   httpGet:

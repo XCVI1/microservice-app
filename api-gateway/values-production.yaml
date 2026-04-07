@@ -1,20 +1,24 @@
-image:
-  tag: latest
 replicaCount: 3
 
-livenessProbe:
-  httpGet:
-    path: /
-    port: 80
-  initialDelaySeconds: 5
-  periodSeconds: 15
-  failureThreshold: 3
+deployment:
+  minReadySeconds: 10
+  revisionHistoryLimit: 10
+  progressDeadlineSeconds: 120
 
-readinessProbe:
-  httpGet:
-    path: /
-    port: 80
-  initialDelaySeconds: 3
-  periodSeconds: 10
-  failureThreshold: 3
+resources:
+  requests:
+    cpu: "100m"
+    memory: "128Mi"
+  limits:
+    cpu: "500m"
+    memory: "256Mi"
 
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 70
+
+pdb:
+  enabled: true
+  maxUnavailable: 1
