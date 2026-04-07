@@ -11,6 +11,7 @@ AUTH_HEADER = {"Authorization": "Bearer fake-token"}
 
 # ─── Health ───────────────────────────────────────────────────────────────────
 
+
 async def test_liveness(client: AsyncClient):
     response = await client.get("/health/live")
     assert response.status_code == 200
