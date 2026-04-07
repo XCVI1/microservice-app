@@ -1,6 +1,6 @@
 - name: Healthcheck api-gateway
   uri:
-    url: "https://gateway-micr.duckdns.org/api/v1/auth/health"
+    url: "https://gateway-micr.duckdns.org/api/v1/auth/health/live"
     method: GET
     status_code: 200
     validate_certs: yes
