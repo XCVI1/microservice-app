@@ -100,6 +100,14 @@ helm upgrade --install auth-service ./auth-service \
 ansible-playbook -i inventories/production/hosts.ini playbooks/helm.yml
 ```
 
+### Reliability
+
+* **Health Probes** — liveness, readiness and startup probes on all services
+* **PodDisruptionBudget** — guaranteed availability during node maintenance
+* **HPA** — horizontal autoscaling based on CPU/memory metrics
+* **Resource limits** — CPU and memory requests/limits on all containers
+* **RollingUpdate strategy** — zero-downtime deployments with `maxUnavailable: 0`
+
 ---
 
 ## Infrastructure Automation (Ansible)
@@ -243,33 +251,35 @@ Implemented using GitHub Actions with a multi-stage pipeline.
 
 ## Implemented
 
-* [x] Microservices architecture
-* [x] API Gateway (Nginx)
+**Infrastructure**
+* [x] Kubernetes deployment (k3s) + Helm chart management
+* [x] Ansible automation (provisioning, deploy, rollback)
 * [x] Docker & docker-compose orchestration
-* [x] PostgreSQL integration
+* [x] PostgreSQL integration + Alembic migrations
+
+**CI/CD**
+* [x] CI pipeline (lint, type-checking, tests, security scanning)
+* [x] CD pipeline (staging & production, separate build pipelines)
+* [x] Docker image build & push + GitHub Releases automation
+* [x] Automated rollback strategy + Telegram notifications
+
+**Reliability**
+* [x] Health probes (liveness, readiness, startup)
+* [x] Resource limits, HPA, PodDisruptionBudget
+* [x] RollingUpdate strategy (zero-downtime)
+
+**Security**
+* [x] Container scanning (Trivy) + static analysis (Bandit)
 * [x] JWT authentication
-* [x] Alembic migrations
-* [x] CI pipeline (lint, type-checking, tests)
-* [x] CD pipeline (staging & production)
-* [x] Docker image build & push
-* [x] Container security scanning (Trivy)
-* [x] Static security analysis (Bandit)
-* [x] Healthcheck-based deployment validation
-* [x] Automated rollback strategy
-* [x] Telegram deployment notifications
-* [x] GitHub Releases automation
-* [x] Ansible automation
-* [x] Kubernetes deployment (k3s)
-* [x] Helm chart management
-* [x] Observability stack (Prometheus + Grafana)
-* [x] Centralized logging
-* [x] Separate build pipelines for staging and production environments
+
+**Observability**
+* [x] Prometheus + Grafana + centralized logging (loki)
 
 ---
 
 ## Roadmap
 
 * [ ] Redis (caching, rate limiting)
-* [ ] Horizontal Pod Autoscaling
+* [ ] Canary deployments
 * [ ] Terraform infrastructure provisioning
 
