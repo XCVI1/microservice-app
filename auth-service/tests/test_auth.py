@@ -20,12 +20,18 @@ VALID_USER = {
 
 # ─── Health ──────────────────────────────────────────────────────────────
 
-
-async def test_health(client: AsyncClient):
-    response = await client.get("/health")
+async def test_liveness(client: AsyncClient):
+    response = await client.get("/health/live")
     assert response.status_code == 200  # nosec
     assert response.json()["status"] == "ok"  # nosec
     assert response.json()["service"] == "auth"  # nosec
+
+
+async def test_readiness(client: AsyncClient):
+    response = await client.get("/health/ready")
+    assert response.status_code == 200  # nosec
+    assert response.json()["status"] == "ok"  # nosec
+    assert response.json()["db"] == "ok"  # nosec
 
 
 # ─── Register ───────────────────────────────────────────────────────────────

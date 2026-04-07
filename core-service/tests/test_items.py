@@ -11,12 +11,18 @@ AUTH_HEADER = {"Authorization": "Bearer fake-token"}
 
 # ─── Health ───────────────────────────────────────────────────────────────────
 
-
-async def test_health(client: AsyncClient):
-    response = await client.get("/health")
+async def test_liveness(client: AsyncClient):
+    response = await client.get("/health/live")
     assert response.status_code == 200
     assert response.json()["status"] == "ok"
     assert response.json()["service"] == "core"
+
+
+async def test_readiness(client: AsyncClient):
+    response = await client.get("/health/ready")
+    assert response.status_code == 200
+    assert response.json()["status"] == "ok"
+    assert response.json()["db"] == "ok"
 
 
 # ─── Auth guard ───────────────────────────────────────────────────────────────
