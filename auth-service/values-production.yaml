@@ -3,7 +3,7 @@ image:
 replicaCount: 2
 
 env:
-  DATABASE_URL: "postgresql+asyncpg://user:password@postgres-auth-postgresql.default.svc.cluster.local:5432/auth_db"
+  DATABASE_URL: ""
 
 livenessProbe:
   httpGet:

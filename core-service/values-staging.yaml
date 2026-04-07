@@ -1,2 +1,28 @@
 image:
   tag: latest
+
+env:
+  DATABASE_URL: ""
+
+livenessProbe:
+  httpGet:
+    path: /health/live
+    port: 8002
+  initialDelaySeconds: 10
+  periodSeconds: 15
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /health/ready
+    port: 8002
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  failureThreshold: 3
+
+startupProbe:
+  httpGet:
+    path: /health/live
+    port: 8002
+  failureThreshold: 12
+  periodSeconds: 5

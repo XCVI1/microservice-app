@@ -176,6 +176,7 @@ jobs:
             --namespace default \
             --set image.repository=${{ secrets.DOCKERHUB_USERNAME }}/auth-service \
             --set image.tag=staging \
+            --set env.DATABASE_URL=${{ secrets.AUTH_DATABASE_URL_STAGING }} \
             --values ./auth-service/values-staging.yaml
 
       - name: Wait for rollout
@@ -204,6 +205,7 @@ jobs:
             --namespace default \
             --set image.repository=${{ secrets.DOCKERHUB_USERNAME }}/auth-service \
             --set image.tag=production-${{ github.ref_name }} \
+            --set env.DATABASE_URL=${{ secrets.AUTH_DATABASE_URL_PRODUCTION }} \
             --values ./auth-service/values-production.yaml
 
       - name: Wait for rollout
