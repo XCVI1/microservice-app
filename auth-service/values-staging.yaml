@@ -1,28 +1,18 @@
-image:
-  tag: latest
+replicaCount: 1
 
 env:
   DATABASE_URL: ""
 
-livenessProbe:
-  httpGet:
-    path: /health/live
-    port: 8001
-  initialDelaySeconds: 10
-  periodSeconds: 15
-  failureThreshold: 3
+resources:
+  requests:
+    cpu: "50m"
+    memory: "64Mi"
+  limits:
+    cpu: "200m"
+    memory: "128Mi"
 
-readinessProbe:
-  httpGet:
-    path: /health/ready
-    port: 8001
-  initialDelaySeconds: 5
-  periodSeconds: 10
-  failureThreshold: 3
+autoscaling:
+  enabled: false
 
-startupProbe:
-  httpGet:
-    path: /health/live
-    port: 8001
-  failureThreshold: 12
-  periodSeconds: 5
+pdb:
+  enabled: false
