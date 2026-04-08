@@ -8,4 +8,4 @@ spec:
     - port: {{ .Values.service.port }}
       targetPort: 8002
   selector:
-    app: {{ include "core-service.name" . }}
+    app.kubernetes.io/name: {{ include "core-service.name" . }}
