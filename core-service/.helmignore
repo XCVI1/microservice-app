@@ -21,3 +21,15 @@
 .idea/
 *.tmproj
 .vscode/
+
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.swp
+*.tmp
+*.log
+.idea/
+.vscode/
