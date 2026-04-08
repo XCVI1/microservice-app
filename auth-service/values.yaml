@@ -5,12 +5,22 @@ image:
   tag: "latest"
   pullPolicy: IfNotPresent
 
+env:
+  DATABASE_URL: ""
+
 service:
   type: ClusterIP
   port: 8001
 
 ingress:
   enabled: false
+
+autoscaling:
+  enabled: false
+
+pdb:
+  enabled: false
+  maxUnavailable: 1
 
 deployment:
   strategy:
