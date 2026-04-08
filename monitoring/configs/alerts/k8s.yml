@@ -1,0 +1,29 @@
+groups:
+  - name: kubernetes
+    rules:
+      - alert: PodRestartingTooOften
+        expr: rate(kube_pod_container_status_restarts_total[15m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Pod {{ $labels.pod }} restarts"
+          description: "More than 1 restart for 15 minutes"
+
+      - alert: PodNotReady
+        expr: kube_pod_status_ready{condition="true"} == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Pod {{ $labels.pod }} not ready"
+          description: "Pod has not been in a ready state for more than 5 minutes"
+
+      - alert: HighMemoryUsage
+        expr: container_memory_usage_bytes{name!="",name!="cadvisor"} > 400000000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage {{ $labels.name }}"
+          description: "Container {{ $labels.name }} uses more than 400MB"
