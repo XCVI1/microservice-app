@@ -43,6 +43,28 @@ jobs:
           cd core-service
           mypy app
 
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.14.0
+
+      - name: Helm lint
+        run: helm lint ./core-service
+
+      - name: Create render directory
+        run: mkdir -p helm-render
+
+      - name: Render helm templates
+        run: |
+          helm template core-service ./core-service > helm-render/core-service-base.yaml
+          helm template core-service ./core-service -f core-service/values-staging.yaml > helm-render/core-service-staging.yaml
+          helm template core-service ./core-service -f core-service/values-production.yaml > helm-render/core-service-production.yaml
+
+      - name: Validate YAML
+        uses: ibiqlik/action-yamllint@v3
+        with:
+          file_or_dir: helm-render
+
       - name: Bandit scan security
         run: |
           pip install bandit

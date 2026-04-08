@@ -43,6 +43,28 @@ jobs:
           cd auth-service
           mypy app
 
+      - name: Install helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.14.0
+
+      - name: Helm lint
+        run: helm lint ./auth-service
+
+      - name: Create render directory
+        run: mkdir -p helm-render
+
+      - name: Render helm templates
+        run: |
+          helm template auth-service ./auth-service > helm-render/auth-service-base.yaml
+          helm template auth-service ./auth-service -f auth-service/values-staging.yaml > helm-render/auth-service-staging.yaml
+          helm template auth-service ./auth-service -f auth-service/values-production.yaml > helm-render/auth-service-production.yaml
+
+      - name: Validate YAML
+        uses: ibiqlik/action-yamllint@v3
+        with:
+          file_or_dir: helm-render
+
       - name: Bandit scan security
         run: |
           pip install bandit
