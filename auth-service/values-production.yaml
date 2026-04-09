@@ -1,7 +1,7 @@
 replicaCount: 2
 
 image:
-  tag: production-auth-v2.0.0
+  tag: production-auth-v2.0.1
 
 env:
   DATABASE_URL: ""
