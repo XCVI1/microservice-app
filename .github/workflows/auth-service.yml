@@ -205,6 +205,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          ref: main
 
       - name: Update image tag for ArgoCD
         run: |
@@ -213,7 +214,7 @@ jobs:
           git config user.name "GitHub Actions"
           git add auth-service/values-production.yaml
           git commit -m "ci: update auth-service image tag to production-${{ github.ref_name }}"
-          git push
+          git push origin HEAD:main
 
       - name: Notify Telegram on success
         if: success()
