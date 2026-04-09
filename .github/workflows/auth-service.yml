@@ -193,7 +193,7 @@ jobs:
           git config user.name "GitHub Actions"
           git add auth-service/values-staging.yaml
           git commit -m "ci: trigger staging deployment" || echo "No changes"
-          git push
+          git push origin HEAD:main || echo "No changes to push"
 
   deploy-production:
     runs-on: ubuntu-latest
