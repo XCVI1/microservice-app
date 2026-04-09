@@ -20,6 +20,8 @@ The system follows a microservices architecture:
 * **api-gateway** — Nginx-based reverse proxy
 * **postgres** — relational database
 
+![Architecture](docs/architecture.png)
+
 ### Key Design Decisions
 
 * Single entry point via API Gateway
