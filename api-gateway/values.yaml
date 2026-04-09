@@ -1,6 +1,6 @@
 image:
   repository: danyafi/api-gateway
-  tag: "production"
+  tag: "latest"
   pullPolicy: IfNotPresent
 
 service:
