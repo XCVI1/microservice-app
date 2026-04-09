@@ -1,7 +1,7 @@
 replicaCount: 2
 
 image:
-  tag: production-core-v2.0.0
+  tag: production-core-v2.0.1
 
 deployment:
   minReadySeconds: 10
