@@ -284,4 +284,5 @@ Implemented using GitHub Actions with a multi-stage pipeline.
 * [ ] Redis (caching, rate limiting)
 * [ ] Canary deployments
 * [ ] Terraform infrastructure provisioning
+* [ ] Sealed Secrets — encrypted secrets in git
 
