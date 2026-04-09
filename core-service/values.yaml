@@ -9,9 +9,6 @@ service:
   type: ClusterIP
   port: 8002
 
-env:
-  DATABASE_URL: ""
-
 ingress:
   enabled: false
 

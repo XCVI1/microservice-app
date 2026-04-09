@@ -1,5 +1,8 @@
 replicaCount: 2
 
+image:
+  tag: production
+
 env:
   DATABASE_URL: ""
 

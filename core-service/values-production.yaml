@@ -1,5 +1,8 @@
 replicaCount: 2
 
+image:
+  tag: production
+
 deployment:
   minReadySeconds: 10
   revisionHistoryLimit: 10

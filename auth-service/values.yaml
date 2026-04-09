@@ -5,9 +5,6 @@ image:
   tag: "latest"
   pullPolicy: IfNotPresent
 
-env:
-  DATABASE_URL: ""
-
 service:
   type: ClusterIP
   port: 8001
